@@ -1,0 +1,53 @@
+#pagination code
+@app.route("/getUser/",methods=["GET"])
+def get_users():
+        
+    try:    
+            page_size=4 #how much record you want to show in page
+            
+            kk= list(db.user.find())
+           
+            last=str(int(len(kk)/page_size))
+
+            m = []
+            for i in range(1, (int(last)+1)):                
+                    m.append(i)
+            
+            
+            page=str(request.args.get("no"))           
+           
+            if (not str(page).isnumeric()):
+                page = 1
+                data= list(db.user.find().skip(page_size*(page-1)).limit(page_size))
+                
+
+            if(int(page)==1):
+                    
+                    prev="#"
+                    page=1
+                    nxt="/getUser/?no=" + str(page+1)
+                    data= list(db.user.find().skip(page_size*(page-1)).limit(page_size))
+                   
+            elif(page==last):                   
+                    
+                    page=int(page) 
+                    data= list(db.user.find().skip(page_size*(page-1)).limit(page_size))
+
+                    nxt="#" 
+                    prev="/getUser/?no=" + str(page-1)
+            
+            else:
+                   
+                    page=int(page)  
+                   
+                   
+                    data= list(db.user.find().skip(page_size*(page-1)).limit(page_size))
+                    nxt="/getUser/?no=" + str(page+1)
+                    prev="/getUser/?no=" + str(page-1)
+                   
+                    
+            return render_template("page.html",d=data,nxt=nxt,prev=prev,m=m)
+        
+    except Exception as ex: 
+                return jsonify("Error")
+            
